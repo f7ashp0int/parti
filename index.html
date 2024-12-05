@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Just Joined Parti</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #0D0D11;
+      color: white;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      color: #32FFB4;
+    }
+    input {
+      margin: 20px 0;
+    }
+    #preview-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #1A1A1F;
+      margin: 20px auto;
+      padding: 10px;
+      max-width: 400px; /* Contained preview size */
+      max-height: 400px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    canvas {
+      max-width: 100%; /* Ensure the image fits the preview box */
+      max-height: 100%;
+      border-radius: 10px;
+    }
+    #download-btn {
+      padding: 10px 20px;
+      background-color: #32FFB4;
+      color: #0D0D11;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 5px;
+    }
+    #download-btn:hover {
+      background-color: #28D9A1;
+    }
+    #download-note {
+      margin: 10px 0 30px 0;
+      color: #A9A9A9;
+      font-size: 14px;
+    }
+    #creator-section {
+      margin-top: 40px;
+      padding: 20px;
+    }
+    #creator-section img {
+      width: 100px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    #creator-section a {
+      text-decoration: none;
+      color: #32FFB4;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Just Joined Parti</h1>
+  <p>Upload your image to add the Parti frame!</p>
+  <input type="file" id="upload" accept="image/*" />
+  <div id="preview-container">
+    <canvas id="canvas"></canvas>
+  </div>
+  <button id="download-btn">Download Final Image</button>
+  <p id="download-note">Alternatively, you can download by right click and "Save As".</p>
+
+  <div id="creator-section">
+    <p>Thank the creator by following him on Parti:</p>
+    <a href="https://parti.com/creator/discord/f7ash/0" target="_blank">
+      <img src="f7ash.png" alt="Follow Creator">
+    </a>
+  </div>
+
+  <script>
+    const uploadInput = document.getElementById('upload');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const downloadBtn = document.getElementById('download-btn');
+    const frameSrc = './parti-frame.png'; // Replace this with the path to your PNG frame
+
+    uploadInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+
+        img.onload = () => {
+          const frame = new Image();
+          frame.src = frameSrc;
+
+          frame.onload = () => {
+            // Set canvas size to match the original image
+            canvas.width = img.width;
+            canvas.height = img.height;
+
+            // Draw the uploaded image
+            ctx.drawImage(img, 0, 0, img.width, img.height);
+
+            // Overlay the frame on top
+            ctx.drawImage(frame, 0, 0, img.width, img.height);
+
+            // Adjust the canvas preview size for the container
+            const maxSize = 400; // Preview box size
+            const scaleFactor = Math.min(maxSize / img.width, maxSize / img.height);
+            canvas.style.width = `${img.width * scaleFactor}px`;
+            canvas.style.height = `${img.height * scaleFactor}px`;
+          };
+        };
+      }
+    });
+
+    // Download the final image with full dimensions
+    downloadBtn.addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = 'final-image.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    });
+  </script>
+</body>
+</html>
