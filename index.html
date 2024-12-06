@@ -76,6 +76,25 @@
       color: #A9A9A9;
       font-size: 14px;
     }
+    #thank-you-section {
+      margin-top: 30px;
+      text-align: center;
+    }
+    #thank-you-section img {
+      width: 60px;
+      height: 60px;
+      margin: 5px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+    #thank-you-section img:hover {
+      border-color: #32FFB4;
+    }
+    #thank-you-section p {
+      margin: 10px 0 5px 0;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -105,6 +124,17 @@
   </div>
   <button id="download-btn">Download Final Image</button>
   <p id="download-note">Alternatively, you can download by right click and "Save As".</p>
+
+  <!-- Thank the Creator Section -->
+  <div id="thank-you-section">
+    <p>Thank the Creator by following them on Parti:</p>
+    <a href="https://parti.com/creator/discord/f7ash/0" target="_blank">
+      <img src="f7ash.png" alt="f7ash">
+    </a>
+    <a href="https://parti.com/creator/parti/NeutralWarrior" target="_blank">
+      <img src="NeutralWarrior.png" alt="NeutralWarrior">
+    </a>
+  </div>
 
   <script>
     const uploadInput = document.getElementById('upload');
