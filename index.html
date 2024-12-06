@@ -19,6 +19,28 @@
     input {
       margin: 20px 0;
     }
+    #frame-section {
+      margin-bottom: 20px;
+    }
+    #frame-section p {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .frame-preview {
+      display: inline-block;
+      margin: 10px;
+      cursor: pointer;
+    }
+    .frame-preview canvas {
+      border-radius: 10px;
+      border: 2px solid transparent;
+      width: 80px;
+      height: 80px;
+    }
+    .frame-preview canvas:hover,
+    .frame-preview canvas.selected {
+      border-color: #32FFB4;
+    }
     #preview-container {
       display: flex;
       justify-content: center;
@@ -26,13 +48,13 @@
       background-color: #1A1A1F;
       margin: 20px auto;
       padding: 10px;
-      max-width: 400px; /* Contained preview size */
+      max-width: 400px;
       max-height: 400px;
       border-radius: 10px;
       overflow: hidden;
     }
     canvas {
-      max-width: 100%; /* Ensure the image fits the preview box */
+      max-width: 100%;
       max-height: 100%;
       border-radius: 10px;
     }
@@ -53,27 +75,29 @@
       color: #A9A9A9;
       font-size: 14px;
     }
-    #creator-section {
-      margin-top: 40px;
-      padding: 20px;
-    }
-    #creator-section p {
-      margin-bottom: 20px;
-    }
-    #creator-section a {
-      margin: 0 10px;
-      text-decoration: none;
-    }
-    #creator-section img {
-      width: 100px;
-      border-radius: 50%;
-      cursor: pointer;
-    }
   </style>
 </head>
 <body>
   <h1>Just Joined Parti</h1>
-  <p>Upload your image to add the Parti frame!</p>
+  <p>Upload your image, choose a frame, and download your masterpiece!</p>
+
+  <!-- Frame Selection -->
+  <div id="frame-section">
+    <p>Choose your Frame:</p>
+    <div class="frame-preview" data-frame="frame1.png">
+      <canvas id="frame-preview-1"></canvas>
+    </div>
+    <div class="frame-preview" data-frame="frame2.png">
+      <canvas id="frame-preview-2"></canvas>
+    </div>
+    <div class="frame-preview" data-frame="frame3.png">
+      <canvas id="frame-preview-3"></canvas>
+    </div>
+    <div class="frame-preview" data-frame="frame4.png">
+      <canvas id="frame-preview-4"></canvas>
+    </div>
+  </div>
+
   <input type="file" id="upload" accept="image/*" />
   <div id="preview-container">
     <canvas id="canvas"></canvas>
@@ -81,23 +105,68 @@
   <button id="download-btn">Download Final Image</button>
   <p id="download-note">Alternatively, you can download by right click and "Save As".</p>
 
-  <div id="creator-section">
-    <p>Thank the creators by following them on Parti:</p>
-    <a href="https://parti.com/creator/discord/f7ash/0" target="_blank">
-      <img src="f7ash.png" alt="Follow f7ash">
-    </a>
-    <a href="https://parti.com/creator/parti/NeutralWarrior" target="_blank">
-      <img src="neutral.png" alt="Follow Neutral">
-    </a>
-  </div>
-
   <script>
     const uploadInput = document.getElementById('upload');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
+    const frameOptions = document.querySelectorAll('.frame-preview');
     const downloadBtn = document.getElementById('download-btn');
-    const frameSrc = './parti-frame.png'; // Replace this with the path to your PNG frame
+    const frameCanvases = [
+      document.getElementById('frame-preview-1'),
+      document.getElementById('frame-preview-2'),
+      document.getElementById('frame-preview-3'),
+      document.getElementById('frame-preview-4'),
+    ];
 
+    const framePaths = ['frame1.png', 'frame2.png', 'frame3.png', 'frame4.png'];
+    let selectedFrame = 'frame1.png'; // Default frame
+    let uploadedImage = null; // To hold the uploaded image
+
+    // Draw frame previews with the uploaded image
+    function loadFramePreviews(image) {
+      frameCanvases.forEach((frameCanvas, index) => {
+        const frameCtx = frameCanvas.getContext('2d');
+        const frame = new Image();
+        frame.src = framePaths[index];
+
+        frame.onload = () => {
+          // Clear the canvas
+          frameCtx.clearRect(0, 0, frameCanvas.width, frameCanvas.height);
+
+          // Draw the uploaded image scaled down for preview
+          const scaleFactor = Math.min(
+            frameCanvas.width / image.width,
+            frameCanvas.height / image.height
+          );
+          const imgWidth = image.width * scaleFactor;
+          const imgHeight = image.height * scaleFactor;
+          const imgX = (frameCanvas.width - imgWidth) / 2;
+          const imgY = (frameCanvas.height - imgHeight) / 2;
+          frameCtx.drawImage(image, imgX, imgY, imgWidth, imgHeight);
+
+          // Overlay the frame on the preview
+          frameCtx.drawImage(frame, 0, 0, frameCanvas.width, frameCanvas.height);
+        };
+      });
+    }
+
+    // Handle frame selection
+    frameOptions.forEach(option => {
+      const frameCanvas = option.querySelector('canvas');
+
+      option.addEventListener('click', () => {
+        selectedFrame = option.getAttribute('data-frame');
+
+        frameOptions.forEach(opt => opt.querySelector('canvas').classList.remove('selected'));
+        frameCanvas.classList.add('selected');
+
+        if (uploadedImage) {
+          drawCanvas(uploadedImage, selectedFrame);
+        }
+      });
+    });
+
+    // Handle image upload
     uploadInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (file) {
@@ -105,31 +174,27 @@
         img.src = URL.createObjectURL(file);
 
         img.onload = () => {
-          const frame = new Image();
-          frame.src = frameSrc;
-
-          frame.onload = () => {
-            // Set canvas size to match the original image
-            canvas.width = img.width;
-            canvas.height = img.height;
-
-            // Draw the uploaded image
-            ctx.drawImage(img, 0, 0, img.width, img.height);
-
-            // Overlay the frame on top
-            ctx.drawImage(frame, 0, 0, img.width, img.height);
-
-            // Adjust the canvas preview size for the container
-            const maxSize = 400; // Preview box size
-            const scaleFactor = Math.min(maxSize / img.width, maxSize / img.height);
-            canvas.style.width = `${img.width * scaleFactor}px`;
-            canvas.style.height = `${img.height * scaleFactor}px`;
-          };
+          uploadedImage = img;
+          loadFramePreviews(img);
+          drawCanvas(img, selectedFrame);
         };
       }
     });
 
-    // Download the final image with full dimensions
+    // Draw the final image on the main canvas
+    function drawCanvas(image, frameSrc) {
+      const frame = new Image();
+      frame.src = frameSrc;
+
+      frame.onload = () => {
+        canvas.width = image.width;
+        canvas.height = image.height;
+
+        ctx.drawImage(image, 0, 0, image.width, image.height);
+        ctx.drawImage(frame, 0, 0, image.width, image.height);
+      };
+    }
+
     downloadBtn.addEventListener('click', () => {
       const link = document.createElement('a');
       link.download = 'final-image.png';
