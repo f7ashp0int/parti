@@ -30,6 +30,7 @@
       display: inline-block;
       margin: 10px;
       cursor: pointer;
+      position: relative;
     }
     .frame-preview canvas {
       border-radius: 10px;
@@ -37,7 +38,7 @@
       width: 80px;
       height: 80px;
     }
-    .frame-preview canvas:hover,
+    .frame-preview canvas:hover, 
     .frame-preview canvas.selected {
       border-color: #32FFB4;
     }
@@ -122,29 +123,16 @@
     let selectedFrame = 'frame1.png'; // Default frame
     let uploadedImage = null; // To hold the uploaded image
 
-    // Draw frame previews with the uploaded image
-    function loadFramePreviews(image) {
+    // Load the frames into the preview section
+    function loadFramePreviews() {
       frameCanvases.forEach((frameCanvas, index) => {
         const frameCtx = frameCanvas.getContext('2d');
         const frame = new Image();
         frame.src = framePaths[index];
 
         frame.onload = () => {
-          // Clear the canvas
+          // Clear the canvas and draw the frame
           frameCtx.clearRect(0, 0, frameCanvas.width, frameCanvas.height);
-
-          // Draw the uploaded image scaled down for preview
-          const scaleFactor = Math.min(
-            frameCanvas.width / image.width,
-            frameCanvas.height / image.height
-          );
-          const imgWidth = image.width * scaleFactor;
-          const imgHeight = image.height * scaleFactor;
-          const imgX = (frameCanvas.width - imgWidth) / 2;
-          const imgY = (frameCanvas.height - imgHeight) / 2;
-          frameCtx.drawImage(image, imgX, imgY, imgWidth, imgHeight);
-
-          // Overlay the frame on the preview
           frameCtx.drawImage(frame, 0, 0, frameCanvas.width, frameCanvas.height);
         };
       });
@@ -155,11 +143,14 @@
       const frameCanvas = option.querySelector('canvas');
 
       option.addEventListener('click', () => {
+        // Update selected frame
         selectedFrame = option.getAttribute('data-frame');
 
+        // Remove "selected" class from all and add it to the clicked frame
         frameOptions.forEach(opt => opt.querySelector('canvas').classList.remove('selected'));
         frameCanvas.classList.add('selected');
 
+        // Update canvas with the new frame if an image is uploaded
         if (uploadedImage) {
           drawCanvas(uploadedImage, selectedFrame);
         }
@@ -174,33 +165,46 @@
         img.src = URL.createObjectURL(file);
 
         img.onload = () => {
-          uploadedImage = img;
-          loadFramePreviews(img);
-          drawCanvas(img, selectedFrame);
+          uploadedImage = img; // Save the uploaded image
+          drawCanvas(img, selectedFrame); // Draw image and frame
         };
       }
     });
 
-    // Draw the final image on the main canvas
+    // Draw the image and frame on the canvas
     function drawCanvas(image, frameSrc) {
       const frame = new Image();
       frame.src = frameSrc;
 
       frame.onload = () => {
+        // Set canvas size to match the original image
         canvas.width = image.width;
         canvas.height = image.height;
 
+        // Draw the uploaded image
         ctx.drawImage(image, 0, 0, image.width, image.height);
+
+        // Overlay the selected frame
         ctx.drawImage(frame, 0, 0, image.width, image.height);
+
+        // Adjust the canvas preview size for the container
+        const maxSize = 400; // Preview box size
+        const scaleFactor = Math.min(maxSize / image.width, maxSize / image.height);
+        canvas.style.width = `${image.width * scaleFactor}px`;
+        canvas.style.height = `${image.height * scaleFactor}px`;
       };
     }
 
+    // Download the final image with full dimensions
     downloadBtn.addEventListener('click', () => {
       const link = document.createElement('a');
       link.download = 'final-image.png';
       link.href = canvas.toDataURL();
       link.click();
     });
+
+    // Load the frame previews on page load
+    loadFramePreviews();
   </script>
 </body>
 </html>
