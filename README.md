@@ -9,11 +9,15 @@ Full-Resolution Download: Download the final image in full resolution.
 Thank the Creator Section: Links to support the creators on the Parti platform.
 
 # How It Works
-Upload Your Image: Click the file upload button and select your image.
-Choose a Frame: Pick from one of the four frames in the "Choose Your Frame" section.
-Preview the Final Output: View your uploaded image with the selected frame applied.
-Download the Image: Click the "Download Final Image" button to save the full-resolution image. Alternatively, right-click the preview and select "Save As."
-Thank the Creator: Follow and support the creators on Parti via the "Thank the Creator" section.
+### Upload Your Image: Click the file upload button and select your image.
+
+### Choose a Frame: Pick from one of the four frames in the "Choose Your Frame" section.
+
+### Preview the Final Output: View your uploaded image with the selected frame applied.
+
+### Download the Image: Click the "Download Final Image" button to save the full-resolution image. Alternatively, right-click the preview and select "Save As."
+
+### Thank the Creator: Follow and support the creator [F7ASH](BLINKS.TO/F7ASHP0INT) on Parti via the "Thank the Creator" section. 
 Demo
 
 Live Demo Link:https://f7ashp0int.github.io/parti/
